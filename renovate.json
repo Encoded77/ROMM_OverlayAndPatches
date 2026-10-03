@@ -1,0 +1,26 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Follow RomM releases: bump ROMM_VERSION in the Dockerfile. CI decides whether the patches still apply; a green PR is merged automatically.",
+  "extends": ["config:recommended"],
+  "enabledManagers": ["custom.regex"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "ARG ROMM_VERSION is a tag of the rommapp/romm image",
+      "managerFilePatterns": ["/(^|/)Dockerfile$/"],
+      "matchStrings": ["ARG ROMM_VERSION=(?<currentValue>\\S+)"],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "rommapp/romm"
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Stable releases only; any of them merges itself once CI is green",
+      "matchDepNames": ["rommapp/romm"],
+      "ignoreUnstable": true,
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": false
+    }
+  ]
+}

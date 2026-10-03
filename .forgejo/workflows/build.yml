@@ -1,0 +1,70 @@
+# Build, check and publish the overlay image.
+#
+# Runs on a host-mode runner labelled `romm-overlay` (it needs the Docker
+# daemon to build the image and start the throwaway RomM for the browser
+# checks). Every step is a plain shell step, so the host needs only git,
+# curl and Docker.
+#
+#   pull_request (Renovate bumping ROMM_VERSION, or a patch change):
+#     build + gates + browser checks; nothing is published. A red PR is the
+#     signal that a patch needs rebasing, and production keeps the last image.
+#   push to main: the same, then publish <romm-version>-<run number>.
+#
+# Secrets: REGISTRY_USER / REGISTRY_TOKEN (push to the Forgejo container
+# registry), NTFY_URL / NTFY_TOKEN (optional, failure notification).
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: romm-overlay
+    env:
+      IMAGE: ${{ vars.REGISTRY_IMAGE }}
+    steps:
+      - name: Checkout
+        run: |
+          rm -rf src
+          git -c "http.extraHeader=Authorization: token ${{ github.token }}" \
+            clone --quiet "${{ github.server_url }}/${{ github.repository }}.git" src
+          git -C src checkout --quiet "${{ github.sha }}"
+
+      - name: Build (patches apply, typecheck, upstream tests, production build)
+        run: |
+          cd src
+          tag="$(sed -n 's/^ARG ROMM_VERSION=//p' Dockerfile)"
+          echo "ROMM_VERSION=$tag" >> "$GITHUB_ENV"
+          sh scripts/build.sh "$tag" romm-overlay-ci
+
+      - name: Browser checks on a throwaway RomM
+        run: sh src/checks/run.sh "romm-overlay-ci:${ROMM_VERSION}"
+
+      - name: Publish
+        if: github.event_name == 'push'
+        run: |
+          ref="${IMAGE}:${ROMM_VERSION}-${{ github.run_number }}"
+          echo "${{ secrets.REGISTRY_TOKEN }}" | docker login "${IMAGE%%/*}" -u "${{ secrets.REGISTRY_USER }}" --password-stdin
+          docker tag "romm-overlay-ci:${ROMM_VERSION}" "$ref"
+          docker push "$ref"
+          docker rmi "$ref"
+          echo "published $ref"
+
+      - name: Clean up
+        if: always()
+        run: |
+          docker rmi "romm-overlay-ci:${ROMM_VERSION}" >/dev/null 2>&1 || true
+          docker image prune -f --filter "until=168h" >/dev/null
+          docker builder prune -f --filter "until=168h" >/dev/null
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          [ -n "${{ secrets.NTFY_URL }}" ] || exit 0
+          curl -fsS -H "Authorization: Bearer ${{ secrets.NTFY_TOKEN }}" \
+            -H "Title: RomM overlay build failed (${ROMM_VERSION:-?})" -H "Tags: warning" \
+            -d "Run ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_number }}: a patch probably needs rebasing. Production keeps the previous image." \
+            "${{ secrets.NTFY_URL }}"

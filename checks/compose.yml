@@ -1,0 +1,38 @@
+# Throwaway RomM for the browser checks: the overlay image, an empty library,
+# a fresh database. Started and destroyed by checks/run.sh.
+name: romm-overlay-check
+
+services:
+  romm:
+    image: ${OVERLAY_IMAGE:-romm-overlay:latest}
+    environment:
+      DB_HOST: db
+      DB_NAME: romm
+      DB_USER: romm
+      DB_PASSWD: romm
+      ROMM_AUTH_SECRET_KEY: 0000000000000000000000000000000000000000000000000000000000000000
+      DISABLE_SETUP_WIZARD: "true"
+    volumes:
+      - ./config.yml:/romm/config/config.yml:ro
+      - library:/romm/library
+    ports:
+      - "${CHECK_PORT:-8081}:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mariadb:12.3.3
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: romm
+      MARIADB_USER: romm
+      MARIADB_PASSWORD: romm
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+volumes:
+  library:

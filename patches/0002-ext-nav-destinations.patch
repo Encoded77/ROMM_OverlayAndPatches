@@ -1,0 +1,19 @@
+diff --git a/frontend/src/v2/composables/useNavDestinations/index.ts b/frontend/src/v2/composables/useNavDestinations/index.ts
+index 45475ae..a7a2a00 100644
+--- a/frontend/src/v2/composables/useNavDestinations/index.ts
++++ b/frontend/src/v2/composables/useNavDestinations/index.ts
+@@ -11,6 +11,7 @@ import { computed } from "vue";
+ import type { ComputedRef } from "vue";
+ import { useI18n } from "vue-i18n";
+ import { useRoute } from "vue-router";
++import { withExtensionDestinations } from "@/ext/_core/nav";
+ 
+ export type NavDestinationId = "home" | "platforms" | "collections" | "search";
+ 
+@@ -73,5 +74,5 @@ export function useNavDestinations(): {
+     return null;
+   });
+ 
+-  return { destinations, activeId };
++  return withExtensionDestinations(destinations, activeId);
+ }

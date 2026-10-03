@@ -1,0 +1,23 @@
+diff --git a/frontend/src/main.ts b/frontend/src/main.ts
+index d2d891c..7bc2d42 100644
+--- a/frontend/src/main.ts
++++ b/frontend/src/main.ts
+@@ -2,6 +2,7 @@ import { createApp } from "vue";
+ import App from "@/RomM.vue";
+ import "@/console/index.css";
+ import { localesReady } from "@/locales";
++import { installExtensions } from "@/ext/_core";
+ import { registerPlugins } from "@/plugins";
+ import router from "@/plugins/router";
+ import storeAuth from "@/stores/auth";
+@@ -81,6 +82,10 @@ async function initializeApp() {
+     }
+   });
+ 
++  // Overlay extensions add their routes before the router resolves the
++  // first navigation.
++  await installExtensions(app, router);
++
+   app.use(router);
+ 
+   app.mount("#app");
