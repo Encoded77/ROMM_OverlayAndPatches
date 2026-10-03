@@ -20,18 +20,35 @@ upstream frontend @ ROMM_VERSION
 ```
 
 - **Patches** (`patches/`) are git diffs against upstream. Keep them to hook
-  points: an import and a call. Today there are two:
+  points: an import and a call. Today there are three:
   - `0001-ext-install-hook` runs the extensions from `main.ts`, before the
     router is installed.
   - `0002-ext-nav-destinations` lets extensions add entries to the v2 navbar
     (desktop pill and mobile bottom bar).
+  - `0003-ext-player-hooks` gives extensions a session in the EmulatorJS
+    player (`views/Player/EmulatorJS/Player.vue`, which the v2 player shell
+    also uses). The hooks are: set up before EmulatorJS boots, game started,
+    Quit, Save & Quit (an extension may store the state itself), and unmount.
 - **Extensions** (`ext/<name>/extension.ts`) are found automatically. One
   extension can contribute:
   - routes (children of the main layout, rendered by the v2 shell);
   - navbar entries;
   - locale files (`ext/<name>/locales/<locale>/<namespace>.json`, merged into
     upstream's lazy locale loader, used as `t("<namespace>.key")`);
+  - player hooks (`player: (context) => session`, see `ext/_core/types.ts`);
   - an `install()` hook for anything else.
+
+  Extensions today:
+  - `requests`: the "Requests" page and its navbar entry (placeholder).
+  - `player-autosave`: one `[autosave]` save state per game and core,
+    overwritten on Quit, Save & Quit and tab close. Its preview comes from a
+    screenshot cached every 10 s. On a tab close it holds the page behind the
+    browser's leave prompt while the upload runs, and ignores EmulatorJS's own
+    `exit` teardown, so cancelling the close keeps the game running.
+  - `game-clock`: a "Game clock" button in the EmulatorJS menu bar. Day
+    (today 12:00), Night (today 23:00), any date, or real time, remembered per
+    game. It works by offsetting `Date.now`, which is how the cores read the
+    time.
 
   `ext/_core/` is the framework itself. Extensions are written with RomM's own
   v2 components (`@v2/lib`, `@/v2/components/shared`), so they look native and

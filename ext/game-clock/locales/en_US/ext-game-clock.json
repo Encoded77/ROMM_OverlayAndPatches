@@ -1,0 +1,10 @@
+{
+  "apply": "Apply",
+  "close": "Close",
+  "day": "Day",
+  "hint": "Day = today 12:00, Night = today 23:00, Reset = real time. Remembered for this game. If the game does not notice, save in game and use Restart.",
+  "night": "Night",
+  "real-time": "real time",
+  "reset": "Reset",
+  "title": "Game clock"
+}

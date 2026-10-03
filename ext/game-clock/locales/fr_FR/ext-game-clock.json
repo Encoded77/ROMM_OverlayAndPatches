@@ -1,0 +1,10 @@
+{
+  "apply": "Appliquer",
+  "close": "Fermer",
+  "day": "Jour",
+  "hint": "Jour = aujourd'hui 12 h, Nuit = aujourd'hui 23 h, Réinitialiser = heure réelle. Mémorisé pour ce jeu. Si le jeu ne le voit pas, sauvegardez en jeu puis utilisez Redémarrer.",
+  "night": "Nuit",
+  "real-time": "heure réelle",
+  "reset": "Réinitialiser",
+  "title": "Horloge du jeu"
+}

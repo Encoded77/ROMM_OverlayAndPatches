@@ -1,0 +1,68 @@
+diff --git a/frontend/src/views/Player/EmulatorJS/Player.vue b/frontend/src/views/Player/EmulatorJS/Player.vue
+index ccf2eb6..673a163 100644
+--- a/frontend/src/views/Player/EmulatorJS/Player.vue
++++ b/frontend/src/views/Player/EmulatorJS/Player.vue
+@@ -1,4 +1,5 @@
+ <script setup lang="ts">
++import { createPlayerSession } from "@/ext/_core/player";
+ import type { Emitter } from "mitt";
+ import { storeToRefs } from "pinia";
+ import {
+@@ -402,6 +403,16 @@ if (EJS_CACHE_LIMIT !== null) window.EJS_CacheLimit = EJS_CACHE_LIMIT;
+ 
+ installEJSDefaultOptionsTrap();
+ 
++// Overlay extensions (src/ext): set up before EmulatorJS boots.
++const extSession = createPlayerSession({
++  rom: romRef,
++  notify: (text, options) =>
++    displayMessage(text, {
++      duration: options?.duration ?? 4000,
++      icon: options?.icon,
++    }),
++});
++
+ onMounted(() => {
+   window.scrollTo(0, 0);
+   // Registered before EmulatorJS binds its own unload handler, so the
+@@ -443,6 +454,7 @@ onMounted(() => {
+ });
+ 
+ onBeforeUnmount(async () => {
++  extSession.dispose();
+   disposed = true;
+   window.removeEventListener("beforeunload", onBeforeUnload);
+   window.removeEventListener("pagehide", onPageHide);
+@@ -899,6 +911,7 @@ window.EJS_onGameStart = async () => {
+   exitEmulation.addEventListener("click", async () => {
+     if (!romRef.value || !window.EJS_emulator) return immediateExit();
+     await flushPendingSave();
++    await extSession.beforeExit("quit");
+     romsStore.update(romRef.value);
+     immediateExit();
+   });
+@@ -922,7 +935,14 @@ window.EJS_onGameStart = async () => {
+     // Different endpoints, so both go at once. The save takes the frame just
+     // captured unless the server already holds these bytes with their own.
+     await Promise.all([
+-      saveState({ rom: romRef.value, stateFile, screenshotFile }),
++      extSession
++        .exitState({ stateFile, screenshotFile })
++        .then(
++          (handled): Promise<unknown> =>
++            handled
++              ? Promise.resolve()
++              : saveState({ rom: romRef.value, stateFile, screenshotFile }),
++        ),
+       saveFile?.byteLength
+         ? writeSaveIfChanged({
+             saveFile: toArrayBuffer(saveFile),
+@@ -936,6 +956,8 @@ window.EJS_onGameStart = async () => {
+     romsStore.update(romRef.value);
+     immediateExit();
+   });
++
++  extSession.gameStarted();
+ };
+ 
+ function immediateExit() {
