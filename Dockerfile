@@ -5,7 +5,7 @@
 # Build through scripts/build.sh, which reads NODE_VERSION from upstream's own
 # Dockerfile for the same tag, so the toolchain follows upstream too.
 
-ARG ROMM_VERSION=5.3.1
+ARG ROMM_VERSION=5.4.0
 ARG NODE_VERSION=24.16
 
 FROM node:${NODE_VERSION}-alpine AS frontend
