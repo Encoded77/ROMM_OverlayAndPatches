@@ -1,16 +1,16 @@
 diff --git a/frontend/src/main.ts b/frontend/src/main.ts
-index d2d891c..7bc2d42 100644
+index 0ab057a..5fd740f 100644
 --- a/frontend/src/main.ts
 +++ b/frontend/src/main.ts
-@@ -2,6 +2,7 @@ import { createApp } from "vue";
- import App from "@/RomM.vue";
+@@ -5,6 +5,7 @@ import App from "@/RomM.vue";
+ import { setStorageUser } from "@/composables/useUserLocalStorage";
  import "@/console/index.css";
  import { localesReady } from "@/locales";
 +import { installExtensions } from "@/ext/_core";
  import { registerPlugins } from "@/plugins";
  import router from "@/plugins/router";
  import storeAuth from "@/stores/auth";
-@@ -81,6 +82,10 @@ async function initializeApp() {
+@@ -97,6 +98,10 @@ async function initializeApp() {
      }
    });
  
