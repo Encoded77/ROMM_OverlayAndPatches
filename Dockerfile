@@ -24,9 +24,13 @@ RUN npm run typecheck
 # covers that). So: longer timeout, two retries per test, and one full rerun
 # of the suite if it still fails; a real regression fails both runs. Plain
 # output so the failure is named in the log.
-RUN NO_COLOR=1 npx vitest run --reporter=dot --retry=2 --testTimeout=20000 \
+# Since 5.4 upstream also renders every Storybook story in Chromium (project
+# `storybook`); none covers a patched file and this alpine stage has no
+# browser, so only the `app` and lint-rule projects run here. The CI's
+# browser checks exercise the patched views on a real RomM instead.
+RUN NO_COLOR=1 npx vitest run --project app --project eslint-plugin-romm --reporter=dot --retry=2 --testTimeout=20000 \
  || (echo "test suite failed, running it once more" \
-     && NO_COLOR=1 npx vitest run --reporter=dot --retry=2 --testTimeout=20000)
+     && NO_COLOR=1 npx vitest run --project app --project eslint-plugin-romm --reporter=dot --retry=2 --testTimeout=20000)
 RUN npm run build
 
 FROM rommapp/romm:${ROMM_VERSION}
