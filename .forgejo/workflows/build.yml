@@ -53,10 +53,23 @@ jobs:
           docker rmi "$ref"
           echo "published $ref"
 
+      - name: Build the requests service (go vet + tests in the image build)
+        run: docker build -t romm-requests-ci src/services/requests
+
+      - name: Publish the requests service
+        if: github.event_name == 'push'
+        run: |
+          ref="${IMAGE%/*}/romm-requests:1.0.${{ github.run_number }}"
+          echo "${{ secrets.REGISTRY_TOKEN }}" | docker login "${IMAGE%%/*}" -u "${{ secrets.REGISTRY_USER }}" --password-stdin
+          docker tag romm-requests-ci "$ref"
+          docker push "$ref"
+          docker rmi "$ref"
+          echo "published $ref"
+
       - name: Clean up
         if: always()
         run: |
-          docker rmi "romm-overlay-ci:${ROMM_VERSION}" >/dev/null 2>&1 || true
+          docker rmi "romm-overlay-ci:${ROMM_VERSION}" romm-requests-ci >/dev/null 2>&1 || true
           docker image prune -f --filter "until=168h" >/dev/null
           docker builder prune -f --filter "until=168h" >/dev/null
 

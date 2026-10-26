@@ -1,6 +1,6 @@
-// Game requests: ask for a game that is not in the library yet, and follow it
-// until it lands. The page is a placeholder until the requests service exists;
-// it is here so the pipeline proves an extension reaches the navbar.
+// Game requests: ask for a game the library lacks and follow it live until
+// it lands in RomM. Backend: services/requests (same origin, /ext/requests).
+import { defineAsyncComponent } from "vue";
 import { defineExtension } from "../_core/types";
 
 export default defineExtension({
@@ -14,11 +14,10 @@ export default defineExtension({
     },
   ],
   navDestinations: [
-    {
-      id: "requests",
-      labelKey: "ext-requests.title",
-      icon: "mdi-gift-outline",
-      to: "/requests",
-    },
+    { id: "requests", labelKey: "ext-requests.title", icon: "mdi-gift-outline", to: "/requests" },
   ],
+  slots: {
+    "search.header": defineAsyncComponent(() => import("./SearchSlot.vue")),
+    "game.overview": defineAsyncComponent(() => import("./MissingRow.vue")),
+  },
 });

@@ -1,0 +1,40 @@
+diff --git a/frontend/src/v2/views/Gallery/Search.vue b/frontend/src/v2/views/Gallery/Search.vue
+index d88299f..2c5d1af 100644
+--- a/frontend/src/v2/views/Gallery/Search.vue
++++ b/frontend/src/v2/views/Gallery/Search.vue
+@@ -7,6 +7,7 @@ import { RTag } from "@v2/lib";
+ import { storeToRefs } from "pinia";
+ import { nextTick, onMounted, ref } from "vue";
+ import { useI18n } from "vue-i18n";
++import ExtensionSlot from "@/ext/_core/ExtensionSlot.vue";
+ import GalleryShell from "@/v2/components/Gallery/GalleryShell.vue";
+ import PageHeader from "@/v2/components/shared/PageHeader.vue";
+ import storeGalleryRoms from "@/v2/stores/galleryRoms";
+@@ -55,6 +56,7 @@ onMounted(async () => {
+           <RTag v-if="initialSearch && !initialFetching" :text="total" />
+         </template>
+       </PageHeader>
++      <ExtensionSlot name="search.header" />
+     </template>
+   </GalleryShell>
+ </template>
+diff --git a/frontend/src/v2/views/GameDetails.vue b/frontend/src/v2/views/GameDetails.vue
+index b991d7d..4781d64 100644
+--- a/frontend/src/v2/views/GameDetails.vue
++++ b/frontend/src/v2/views/GameDetails.vue
+@@ -5,6 +5,7 @@
+ // tabs, tab panel) stacked in a flex-1 column on the right. Thin
+ // orchestrator — data + tab state live here, every visual piece is a
+ // sub-component under components/GameDetails/.
++import ExtensionSlot from "@/ext/_core/ExtensionSlot.vue";
+ import { RTabNav, type RTabNavItem } from "@v2/lib";
+ import { formatReleaseDate } from "@v2/utils/time";
+ import { storeToRefs } from "pinia";
+@@ -377,6 +378,7 @@ const tabs = computed<RTabNavItem[]>(() => [
+             :ports="ports"
+             :similar-roms="similarRoms"
+           />
++          <ExtensionSlot v-if="tab === 'overview'" name="game.overview" />
+           <FilesTab v-if="tab === 'files'" :rom="currentRom" />
+           <MediaTab v-if="tab === 'media'" :rom="currentRom" />
+           <NotesTab v-if="tab === 'notes'" :rom="currentRom" />
