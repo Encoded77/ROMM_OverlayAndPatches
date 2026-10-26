@@ -21,7 +21,8 @@ const core = (): string => (window as any).EJS_core ?? "";
 
 function csrfToken(): string {
   const match = document.cookie.match(/(?:^|; )romm_csrftoken=([^;]*)/);
-  return match ? decodeURIComponent(match[1]) : "";
+  const value = match?.[1];
+  return value ? decodeURIComponent(value) : "";
 }
 
 function asBlob(bytes: Bytes): Blob {
