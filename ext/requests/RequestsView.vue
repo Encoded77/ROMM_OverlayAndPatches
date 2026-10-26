@@ -116,7 +116,12 @@ watch(query, (q) => runSearch(q ?? ""));
     </section>
 
     <section class="ext-requests__list">
-      <RTabNav v-model="tab" :items="tabs" variant="underlined" />
+      <RTabNav
+        :model-value="tab"
+        :items="tabs"
+        variant="underlined"
+        @update:model-value="tab = $event as Tab"
+      />
       <SettingsPanel v-if="tab === 'settings'" />
       <template v-else>
         <REmptyState

@@ -43,7 +43,7 @@ export interface PlayerSession {
    */
   exitState?: (capture: {
     stateFile: Uint8Array | ArrayBuffer;
-    screenshotFile?: Uint8Array | ArrayBuffer;
+    screenshotFile?: Uint8Array | ArrayBuffer | undefined;
   }) => Promise<boolean> | boolean;
   /** The player is unmounting. */
   dispose?: () => void;
