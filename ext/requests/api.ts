@@ -79,7 +79,7 @@ export interface GameRequest {
   placed?: string;
   parent_id?: number;
   extra?: string;
-  live?: Live;
+  live?: Live | undefined;
 }
 
 export const EXTRAS = ["updates", "dlc", "translation", "hacks"] as const;
