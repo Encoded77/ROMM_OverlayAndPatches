@@ -1,3 +1,4 @@
 .git
 .forgejo
 checks/node_modules
+services/requests

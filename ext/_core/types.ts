@@ -4,7 +4,7 @@
 // default export is a RommExtension. Everything an extension contributes goes
 // through this interface, so the hook patches applied to upstream stay a few
 // lines long and never need to know what the extensions do.
-import type { App, Ref } from "vue";
+import type { App, Component, Ref } from "vue";
 import type { RouteRecordRaw, Router } from "vue-router";
 
 export interface ExtensionNavDestination {
@@ -67,6 +67,13 @@ export interface RommExtension {
   routes?: RouteRecordRaw[];
   /** Entries for the v2 navbar (desktop pill and mobile bottom bar). */
   navDestinations?: ExtensionNavDestination[];
+  /**
+   * Components rendered by named slots in upstream views (hook patch 0004):
+   *   "search.header"   under the v2 search page title
+   *   "game.overview"   at the end of a game page's Overview tab
+   * A slot component reads what it needs from RomM's own stores.
+   */
+  slots?: Record<string, Component>;
   /** Hooks into the EmulatorJS player (hook patch 0003). */
   player?: PlayerExtension;
   /** Anything else, run once before the router is installed. */
