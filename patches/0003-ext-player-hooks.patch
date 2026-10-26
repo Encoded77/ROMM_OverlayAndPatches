@@ -1,5 +1,5 @@
 diff --git a/frontend/src/views/Player/EmulatorJS/Player.vue b/frontend/src/views/Player/EmulatorJS/Player.vue
-index 5f9cced..84eadc6 100644
+index 5f9cced..084ea7b 100644
 --- a/frontend/src/views/Player/EmulatorJS/Player.vue
 +++ b/frontend/src/views/Player/EmulatorJS/Player.vue
 @@ -1,4 +1,5 @@
@@ -18,7 +18,7 @@ index 5f9cced..84eadc6 100644
 +  notify: (text, options) =>
 +    displayMessage(text, {
 +      duration: options?.duration ?? 4000,
-+      icon: options?.icon,
++      ...(options?.icon ? { icon: options.icon } : {}),
 +    }),
 +});
 +
