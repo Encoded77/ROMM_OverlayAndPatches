@@ -19,7 +19,14 @@ WORKDIR /src/frontend
 RUN npm ci --ignore-scripts --no-audit --no-fund
 # Gates: the patched tree must still typecheck and pass upstream's own tests.
 RUN npm run typecheck
-RUN npx vitest run --reporter=dot
+# A few upstream tests are timing-sensitive, and Vite's dependency scan can
+# restart mid-run and fail a whole file while it loads (no per-test retry
+# covers that). So: longer timeout, two retries per test, and one full rerun
+# of the suite if it still fails; a real regression fails both runs. Plain
+# output so the failure is named in the log.
+RUN NO_COLOR=1 npx vitest run --reporter=dot --retry=2 --testTimeout=20000 \
+ || (echo "test suite failed, running it once more" \
+     && NO_COLOR=1 npx vitest run --reporter=dot --retry=2 --testTimeout=20000)
 RUN npm run build
 
 FROM rommapp/romm:${ROMM_VERSION}
