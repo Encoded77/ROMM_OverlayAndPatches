@@ -52,6 +52,12 @@ upstream frontend @ ROMM_VERSION
     screenshot cached every 10 s. On a tab close it holds the page behind the
     browser's leave prompt while the upload runs, and ignores EmulatorJS's own
     `exit` teardown, so cancelling the close keeps the game running.
+  - `player-volume`: the volume slider and Mute work on every core. The
+    nightly EmulatorJS build (loaded when netplay is on) has cores that
+    connect audio straight to the destination, past the OpenAL gains
+    EmulatorJS sets; the extension routes every destination connection
+    through one master gain per AudioContext, installed at app start so
+    upstream's netplay audio tap still captures ahead of it.
   - `game-clock`: a "Game clock" button in the EmulatorJS menu bar. Day
     (today 12:00), Night (today 23:00), any date, or real time, remembered per
     game. It works by offsetting `Date.now`, which is how the cores read the
