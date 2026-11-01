@@ -58,6 +58,11 @@ upstream frontend @ ROMM_VERSION
     EmulatorJS sets; the extension routes every destination connection
     through one master gain per AudioContext, installed at app start so
     upstream's netplay audio tap still captures ahead of it.
+  - `player-controls`: the default pad layout is RomM's `emulatorjs.controls`
+    (Xbox layout by position, players 1 to 4), but EmulatorJS saves the whole
+    control map per game in the browser and then ignores the defaults. A
+    saved map identical to EmulatorJS's stock one is swapped for the current
+    defaults once per game; a map the player changed is kept.
   - `game-clock`: a "Game clock" button in the EmulatorJS menu bar. Day
     (today 12:00), Night (today 23:00), any date, or real time, remembered per
     game. It works by offsetting `Date.now`, which is how the cores read the
