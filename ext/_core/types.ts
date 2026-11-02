@@ -68,12 +68,19 @@ export interface RommExtension {
   /** Entries for the v2 navbar (desktop pill and mobile bottom bar). */
   navDestinations?: ExtensionNavDestination[];
   /**
-   * Components rendered by named slots in upstream views (hook patch 0004):
+   * Components rendered by named slots in upstream views (hook patches 0004, 0005):
    *   "search.header"   under the v2 search page title
    *   "game.overview"   at the end of a game page's Overview tab
+   *   "game.actions"    after the Stream button of a game page (props: rom, size)
    * A slot component reads what it needs from RomM's own stores.
    */
   slots?: Record<string, Component>;
+  /**
+   * True for a rom whose stream launch the extension draws itself in
+   * "game.actions"; the game page then hides its own Stream button.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ownsStream?: (rom: any) => boolean;
   /** Hooks into the EmulatorJS player (hook patch 0003). */
   player?: PlayerExtension;
   /** Anything else, run once before the router is installed. */

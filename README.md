@@ -20,7 +20,7 @@ upstream frontend @ ROMM_VERSION
 ```
 
 - **Patches** (`patches/`) are git diffs against upstream. Keep them to hook
-  points: an import and a call. Today there are four:
+  points: an import and a call. Today there are five:
   - `0001-ext-install-hook` runs the extensions from `main.ts`, before the
     router is installed.
   - `0002-ext-nav-destinations` lets extensions add entries to the v2 navbar
@@ -33,6 +33,10 @@ upstream frontend @ ROMM_VERSION
     views: `search.header` (under the search page title) and `game.overview`
     (end of a game page's Overview tab). Slot components read RomM's own
     stores for their context.
+  - `0005-ext-game-actions` places a `game.actions` slot after the Stream
+    button of a game page (it passes the rom and the button size), lets an
+    extension take over the Stream button for a rom (`ownsStream`), and gives
+    the Stream button an optional label and icon.
 - **Extensions** (`ext/<name>/extension.ts`) are found automatically. One
   extension can contribute:
   - routes (children of the main layout, rendered by the v2 shell);
@@ -63,6 +67,12 @@ upstream frontend @ ROMM_VERSION
     control map per game in the browser and then ignores the defaults. A
     saved map identical to EmulatorJS's stock one is swapped for the current
     defaults once per game; a map the player changed is kept.
+  - `ds-modes`: a DS game streamed from an external melonDS pool gets
+    two launches in place of Stream: Multiplayer, a private screen per player
+    whose DSes link over DS wireless, and Shared screen, four DSes in one
+    stream with RomM's invite link for pads. Each sets RomM's "open this
+    session to other players" preference, which the broker reads as the mode,
+    before launching. Play (in the browser) is unchanged.
   - `game-clock`: a "Game clock" button in the EmulatorJS menu bar. Day
     (today 12:00), Night (today 23:00), any date, or real time, remembered per
     game. It works by offsetting `Date.now`, which is how the cores read the

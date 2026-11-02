@@ -39,6 +39,12 @@ export async function installExtensions(app: App, router: Router) {
   }
 }
 
+/** Whether an extension draws its own stream launch for this rom (hook patch 0005). */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function extensionOwnsStream(rom: any): boolean {
+  return extensions.some((extension) => extension.ownsStream?.(rom) ?? false);
+}
+
 /** Every extension's navbar entries, in declaration order. */
 export function extensionNavDestinations(): ExtensionNavDestination[] {
   return extensions.flatMap((extension) => extension.navDestinations ?? []);
