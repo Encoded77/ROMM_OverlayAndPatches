@@ -130,7 +130,11 @@ add the label to `expected` in `checks/nav-check.mjs`.
 cookie reaches it and it asks RomM `GET /api/users/me` who the caller is.
 
 - `internal/match`: release scoring against a game, rules per platform
-  (regions, formats, sizes, seeders), verdict auto / candidate / reject.
+  (regions, formats, sizes, seeders), verdict auto / candidate / reject. A
+  file of a verified set (TTB's MiNERVA and Internet Archive sources) takes
+  its platform from its set folder, needs no seeders, and a plain HTTP one
+  ranks above the set torrent; betas, prototypes and samples are never taken
+  alone.
 - `internal/provider`: the download provider interface; `provider/ttb`
   implements it on TorrentTrackerBrowser (SSE search, jobs, purge). Another
   provider (Prowlarr + qBittorrent) only has to implement the interface.

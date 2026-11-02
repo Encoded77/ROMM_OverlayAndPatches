@@ -20,7 +20,13 @@ type Release struct {
 	Seeders  int    `json:"seeders"`
 	Indexer  string `json:"indexer"`
 	InfoHash string `json:"info_hash,omitempty"`
-	Usable   bool   `json:"usable"` // has a magnet or a torrent
+	Usable   bool   `json:"usable"` // has a magnet, a torrent, or is an archive file
+	// Archive sets (No-Intro, Redump): Collection is the set folder, which
+	// names the platform; Archive marks a verified dump with no seeders
+	// figure; Direct marks a plain HTTP download.
+	Collection string `json:"collection,omitempty"`
+	Archive    bool   `json:"archive,omitempty"`
+	Direct     bool   `json:"direct,omitempty"`
 }
 
 // Verdict of one release.
@@ -65,7 +71,7 @@ var aliases = map[string][]string{
 	"n64dd": {"64dd", "n64dd"}, "nds": {"nds", "nintendo ds", "ds"},
 	"nes": {"nes", "famicom", "nintendo entertainment system"}, "ps2": {"ps2", "playstation 2"},
 	"psp": {"psp", "playstation portable"}, "psx": {"psx", "ps1", "psone", "playstation", "playstation 1"},
-	"sega32x": {"32x", "sega 32x"}, "snes": {"snes", "super nintendo", "super famicom", "sfc"},
+	"sega32x": {"32x", "sega 32x"}, "snes": {"snes", "super nintendo entertainment system", "super nintendo", "super famicom", "sfc"},
 	"switch": {"switch", "nsw", "nintendo switch"}, "wii": {"wii"}, "wiiu": {"wii u", "wiiu"},
 }
 
@@ -78,7 +84,7 @@ var tagWords = toSet("u e j k a usa us eur europe japan jpn world asia korea kor
 	"france germany spain italy netherlands sweden australia brazil canada china taiwan hong kong scandinavia")
 
 var unwanted = []string{"soundtrack", "ost", "artbook", "art book", "guide", "walkthrough", "trainer", "cheat", "cheats",
-	"dlc", "update", "patch", "demo", "manual", "scan", "video", "movie", "wallpaper", "theme", "save", "collection", "pack", "bundle"}
+	"dlc", "update", "patch", "demo", "beta", "proto", "prototype", "sample", "kiosk", "pirate", "manual", "scan", "video", "movie", "wallpaper", "theme", "save", "collection", "pack", "bundle"}
 
 var stopWords = toSet("the a an")
 var roman = map[string]string{"ii": "2", "iii": "3", "iv": "4", "v": "5", "vi": "6", "vii": "7", "viii": "8", "ix": "9"}
@@ -285,7 +291,11 @@ func Rank(releases []Release, w Wanted, keepRejected bool) []Scored {
 }
 
 func score(r Release, w Wanted, list []alias, gameKeys []string) Scored {
-	s := Scored{Release: r, Platforms: detectPlatforms(r.Title, list), Reasons: []string{}}
+	where := r.Title
+	if r.Collection != "" {
+		where = r.Collection // archive file names never name the platform, their set does
+	}
+	s := Scored{Release: r, Platforms: detectPlatforms(where, list), Reasons: []string{}}
 	s.TitleKey = releaseKey(r.Title, list)
 	text := words(r.Title)
 	reject := func(why string) Scored {
@@ -368,11 +378,24 @@ func score(r Release, w Wanted, list []alias, gameKeys []string) Scored {
 	if !r.Usable {
 		return reject("no magnet or torrent")
 	}
-	s.Score += float64(min(r.Seeders, 50)) / 2
+	seeded := r.Seeders >= max(w.Rules.MinSeeders, 1)
+	switch {
+	case r.Archive:
+		// A verified set file: as good as a well-seeded release; plain HTTP
+		// beats a set torrent whose swarm is unknown.
+		seeded = true
+		s.Score += 25
+		s.Reasons = append(s.Reasons, "verified archive set")
+		if r.Direct {
+			s.Score += 2
+			s.Reasons = append(s.Reasons, "direct download")
+		}
+	default:
+		s.Score += float64(min(r.Seeders, 50)) / 2
+	}
 
 	s.Verdict = Candidate
-	if title == "exact" && platformOK && len(s.Platforms) == 1 && !set &&
-		r.Seeders >= max(w.Rules.MinSeeders, 1) && s.Region != "jp" {
+	if title == "exact" && platformOK && len(s.Platforms) == 1 && !set && seeded && s.Region != "jp" {
 		s.Verdict = Auto
 	}
 	return s

@@ -51,6 +51,9 @@ type result struct {
 	InfoHash   string `json:"infoHash"`
 	HasMagnet  bool   `json:"hasMagnet"`
 	HasTorrent bool   `json:"hasTorrent"`
+	Collection string `json:"collection"` // archive sets: "No-Intro/Nintendo - Game Boy"
+	Archive    bool   `json:"archive"`
+	Direct     bool   `json:"direct"`
 }
 
 func (t *TTB) Search(ctx context.Context, query string) ([]match.Release, []string, error) {
@@ -102,7 +105,8 @@ func (t *TTB) Search(ctx context.Context, query string) ([]match.Release, []stri
 					releases = append(releases, match.Release{
 						ID: r.ID, Title: r.Title, Size: r.Size, Seeders: r.Seeders,
 						Indexer: t.indexerName(ctx, r.Indexer), InfoHash: strings.ToLower(r.InfoHash),
-						Usable: r.HasMagnet || r.HasTorrent,
+						Usable:     r.HasMagnet || r.HasTorrent || r.Archive,
+						Collection: r.Collection, Archive: r.Archive, Direct: r.Direct,
 					})
 				}
 			}

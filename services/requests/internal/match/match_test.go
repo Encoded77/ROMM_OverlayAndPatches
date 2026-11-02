@@ -124,3 +124,26 @@ func TestTrailingVersionIsNeutralButSubtitleIsNot(t *testing.T) {
 		t.Fatal("a subtitle must not be dropped for an exact match")
 	}
 }
+
+func TestArchiveSetFile(t *testing.T) {
+	w := want("Pokémon Emerald Version", "gba")
+	arch := func(title string, direct bool) Release {
+		return Release{ID: title, Title: title, Size: 16 << 20, Usable: true, Archive: true, Direct: direct,
+			Collection: "No-Intro/Nintendo - Game Boy Advance"}
+	}
+	s := verdict(t, w, arch("Pokemon - Emerald Version (USA, Europe).zip", false))
+	if s.Verdict != Auto || len(s.Platforms) != 1 || s.Platforms[0] != "gba" {
+		t.Errorf("a set file needs no seeders and takes its platform from its set: %+v", s)
+	}
+	if d := verdict(t, w, arch("Pokemon - Emerald Version (USA, Europe).zip", true)); d.Score <= s.Score {
+		t.Errorf("plain HTTP must beat the set torrent: %v <= %v", d.Score, s.Score)
+	}
+	if b := verdict(t, w, arch("Pokemon - Emerald Version (Europe) (Beta).zip", false)); b.Verdict == Auto {
+		t.Errorf("a beta is never taken alone: %+v", b)
+	}
+	snes := Release{ID: "smw", Title: "Super Mario World (Europe).zip", Size: 1 << 19, Usable: true, Archive: true,
+		Collection: "No-Intro/Nintendo - Super Nintendo Entertainment System"}
+	if s := verdict(t, want("Super Mario World", "snes"), snes); s.Verdict != Auto {
+		t.Errorf("SNES set is not the NES: %+v", s)
+	}
+}
