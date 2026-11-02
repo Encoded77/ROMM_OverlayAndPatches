@@ -67,10 +67,10 @@ upstream frontend @ ROMM_VERSION
     control map per game in the browser and then ignores the defaults. A
     saved map identical to EmulatorJS's stock one is swapped for the current
     defaults once per game; a map the player changed is kept.
-  - `ds-modes`: a DS game streamed from an external melonDS pool gets
-    two launches in place of Stream: Multiplayer, a private screen per player
-    whose DSes link over DS wireless, and Shared screen, four DSes in one
-    stream with RomM's invite link for pads. Each sets RomM's "open this
+  - `ds-modes`: a DS or 3DS game streamed from an external emulator pool
+    gets launches in place of Stream: Multiplayer, a private screen per player
+    whose consoles link over their local wireless, and, for the DS only,
+    Shared screen, four DSes in one stream with RomM's invite link for pads. Each sets RomM's "open this
     session to other players" preference, which the broker reads as the mode,
     before launching. Play (in the browser) is unchanged.
   - `game-clock`: a "Game clock" button in the EmulatorJS menu bar. Day
