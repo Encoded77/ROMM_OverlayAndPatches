@@ -189,7 +189,9 @@ const choose = (c: Candidate) =>
         <div class="ext-req__body">
           <div class="ext-req__candidate-title">{{ c.title }}</div>
           <div class="ext-req__muted">
-            {{ formatBytes(c.size) }} · {{ c.seeders }} seeders · {{ c.indexer }}
+            {{ formatBytes(c.size) }} ·
+            {{ c.archive ? t(c.direct ? "ext-requests.set-direct" : "ext-requests.set-torrent") : `${c.seeders} seeders` }}
+            · {{ c.indexer }}
             <template v-if="c.region"> · {{ c.region }}</template>
             <template v-if="c.format"> · {{ c.format }}</template>
             · {{ c.reasons.join(", ") }}

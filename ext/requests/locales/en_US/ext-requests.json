@@ -46,6 +46,8 @@
   "search-again": "Search again",
   "search-placeholder": "Search a game to request",
   "searching": "Searching…",
+  "set-direct": "verified set (direct download)",
+  "set-torrent": "verified set (torrent)",
   "settings": {
     "auto-download": "Download confident results automatically",
     "convert": "Convert discs",

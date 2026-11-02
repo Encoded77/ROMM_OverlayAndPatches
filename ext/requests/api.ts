@@ -46,6 +46,8 @@ export interface Candidate {
   format?: string;
   platforms: string[];
   reasons: string[];
+  archive?: boolean; // a file of a verified set (no seeders figure)
+  direct?: boolean; // a plain HTTP download
 }
 
 export interface Live {
