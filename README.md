@@ -3,24 +3,55 @@
 Run [RomM](https://github.com/rommapp/romm) with your own frontend changes and
 still take every upstream release.
 
-The image is upstream's `rommapp/romm:<version>` with one thing replaced: the
-web app, rebuilt from upstream's frontend source for the same version after
-applying a small patch queue and adding extensions. The backend is never
-touched.
+The image is upstream's `rommapp/romm:<version>` with the web app replaced:
+rebuilt from upstream's frontend source for the same version after applying a
+small patch queue and adding extensions. The backend is upstream's, apart from
+one small patch that stores which extensions are switched on.
+
+![Administration > Extensions](docs/screenshots/admin-extensions.png)
+
+## Extensions at a glance
+
+| Extension | What it adds | Needs | Default |
+|---|---|---|---|
+| `player-autosave` | One autosave per game and core, on Quit, Save & Quit and tab close | nothing | on |
+| `player-volume` | Volume slider and Mute on every EmulatorJS core | nothing | on |
+| `player-controls` | RomM's default pad layout for games saved with EmulatorJS's stock map | nothing | on |
+| `game-clock` | A "Game clock" button in the player: day, night, any date | nothing | on |
+| `random-multi` | A "Random multiplayer" navbar entry | nothing | on |
+| `requests` | A Requests page to ask for missing games | the `services/requests` backend and a download provider | off |
+| `ds-modes` | Multiplayer / Shared screen launches for streamed DS and 3DS games | a streaming broker that reads the multiplayer preference as the mode | off |
+
+An admin switches each one on or off in **Administration > Extensions**. The
+choice is saved in RomM's `config.yml` (so it needs the config file mounted
+writable), applies to every user, and takes effect on the next page load:
+
+```yaml
+overlay:
+  extensions:
+    requests: true
+    ds-modes: true
+```
+
+![After switching Game requests on](docs/screenshots/admin-extensions-reload.png)
+
+An extension the admin never touched keeps its default. The ones that need a
+service outside RomM start off, so a plain install shows no page or button
+that cannot work.
 
 ## How it works
 
 ```
-upstream frontend @ ROMM_VERSION
+upstream source @ ROMM_VERSION
   + patches/*.patch        hook points only, a few lines each
   + ext/<name>/            all real code, as new files (never conflicts)
   -> typecheck, upstream unit tests, vite build
-  -> COPY dist over rommapp/romm:ROMM_VERSION
+  -> COPY dist and the patched backend files over rommapp/romm:ROMM_VERSION
   -> browser checks against a throwaway RomM
 ```
 
 - **Patches** (`patches/`) are git diffs against upstream. Keep them to hook
-  points: an import and a call. Today there are six:
+  points: an import and a call. Today there are eight:
   - `0001-ext-install-hook` runs the extensions from `main.ts`, before the
     router is installed.
   - `0002-ext-nav-destinations` lets extensions add entries to the v2 navbar
@@ -40,6 +71,13 @@ upstream frontend @ ROMM_VERSION
   - `0006-ext-stream-setup` lets an extension that owns a rom's stream
     replace the stream launch screen's multiplayer switch with a
     `stream.setup` slot (it passes the rom).
+  - `0007-ext-overlay-config` (backend) reads and writes an
+    `overlay.extensions` section of `config.yml`, keeps it when RomM rewrites
+    the file for another setting, returns it in `GET /api/config` as
+    `OVERLAY_EXTENSIONS`, and adds `PUT /api/config/overlay/extensions/{id}`
+    (admins only) to switch one.
+  - `0008-ext-admin-extensions-tab` adds the Extensions tab to the v2
+    Administration page (admins only).
 - **Extensions** (`ext/<name>/extension.ts`) are found automatically. One
   extension can contribute:
   - routes (children of the main layout, rendered by the v2 shell);
@@ -47,10 +85,12 @@ upstream frontend @ ROMM_VERSION
   - locale files (`ext/<name>/locales/<locale>/<namespace>.json`, merged into
     upstream's lazy locale loader, used as `t("<namespace>.key")`);
   - player hooks (`player: (context) => session`, see `ext/_core/types.ts`);
-  - an `install()` hook for anything else.
+  - an `install()` hook for anything else;
+  - `defaultEnabled: false` when it needs a service outside RomM (see
+    "Extensions at a glance").
 
   Extensions today:
-  - `requests`: game requests ("Demandes"): a page with IGDB search,
+  - `requests` (off by default): game requests ("Demandes"): a page with IGDB search,
     live request list (SSE) and admin settings, a search fallback slot and a
     "related games missing from the library" slot, all backed by
     `services/requests`.
@@ -70,8 +110,8 @@ upstream frontend @ ROMM_VERSION
     control map per game in the browser and then ignores the defaults. A
     saved map identical to EmulatorJS's stock one is swapped for the current
     defaults once per game; a map the player changed is kept.
-  - `ds-modes`: a DS or 3DS game streamed from an external emulator pool
-    gets launches in place of Stream: Multiplayer, a private screen per player
+  - `ds-modes` (off by default): a DS or 3DS game streamed from an external
+    emulator pool gets launches in place of Stream: Multiplayer, a private screen per player
     whose consoles link over their local wireless, and, for the DS only,
     Shared screen, four DSes in one stream with RomM's invite link for pads. Each sets RomM's "open this
     session to other players" preference, which the broker reads as the mode,
@@ -128,8 +168,10 @@ export default defineExtension({
 });
 ```
 
-Add `ext/hello/locales/en_US/ext-hello.json` with `{ "title": "Hello" }`, then
-add the label to `expected` in `checks/nav-check.mjs`.
+Add `ext/hello/locales/en_US/ext-hello.json` with `{ "title": "Hello" }`, give
+it a name and a description in `ext/_core/locales/*/ext-core.json` (`"hello"`,
+`"hello-desc"`) for the Extensions tab, then add the label to `expected` in
+`checks/nav-check.mjs` (or to `switchedOff` if it sets `defaultEnabled: false`).
 
 ## Services
 
@@ -165,9 +207,13 @@ image.
 ## Building and checking locally
 
 ```sh
-scripts/build.sh 5.3.1 romm-overlay   # needs Docker
-checks/run.sh romm-overlay:5.3.1      # throwaway RomM + headless Chromium
+scripts/build.sh 5.4.1 romm-overlay   # needs Docker
+checks/run.sh romm-overlay:5.4.1      # throwaway RomM + headless Chromium
+SCREENSHOTS=$PWD/shots checks/run.sh romm-overlay:5.4.1   # also saves screenshots
 ```
+
+The check asserts that the extensions that start off are absent, switches them
+on in Administration > Extensions, and then opens their pages too.
 
 Only the v2 UI (RomM's default since 5.3) gets navbar entries. v1 users can
 still open an extension's page by its URL.

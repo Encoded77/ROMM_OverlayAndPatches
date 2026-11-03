@@ -5,6 +5,8 @@ import { defineExtension } from "../_core/types";
 
 export default defineExtension({
   id: "requests",
+  // Needs the services/requests backend on RomM's origin.
+  defaultEnabled: false,
   routes: [
     {
       path: "requests",
