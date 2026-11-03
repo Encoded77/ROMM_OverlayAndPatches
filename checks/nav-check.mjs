@@ -84,6 +84,7 @@ try {
       title,
     );
     await page.getByRole("button", { name: "Reload" }).waitFor({ timeout: 15000 });
+    if (shots) await page.waitForTimeout(500); // let the switch finish sliding
     await shot("admin-extensions-reload");
     console.log(`ok: "${title}" switched on in Administration > Extensions`);
   }

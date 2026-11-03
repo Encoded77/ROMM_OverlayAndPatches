@@ -33,6 +33,8 @@ overlay:
     ds-modes: true
 ```
 
+![After switching Game requests on](docs/screenshots/admin-extensions-reload.png)
+
 An extension the admin never touched keeps its default. The ones that need a
 service outside RomM start off, so a plain install shows no page or button
 that cannot work.
