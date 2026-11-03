@@ -1,4 +1,7 @@
 {
   "private": "Multijoueur",
-  "shared": "Écran partagé"
+  "shared": "Écran partagé",
+  "mode": "Mode de jeu",
+  "private-hint": "Un écran privé par joueur. Chaque joueur ouvre ce jeu dans RomM et clique Multijoueur : les consoles se retrouvent seules. Aucun lien à partager.",
+  "shared-hint": "Quatre DS sur un seul écran. Partage le lien d'invitation joueur pour que chacun branche sa manette."
 }

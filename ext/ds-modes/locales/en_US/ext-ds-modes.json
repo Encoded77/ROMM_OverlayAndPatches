@@ -1,4 +1,7 @@
 {
   "private": "Multiplayer",
-  "shared": "Shared screen"
+  "shared": "Shared screen",
+  "mode": "Play mode",
+  "private-hint": "A private screen per player. Each player opens this game in RomM and clicks Multiplayer: the consoles find each other. No link to share.",
+  "shared-hint": "Four DSes on one screen. Share the player invite link so everyone plugs in a pad."
 }

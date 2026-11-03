@@ -1,0 +1,29 @@
+diff --git a/frontend/src/v2/views/Player/Stream.vue b/frontend/src/v2/views/Player/Stream.vue
+index 7809534..65c3c72 100644
+--- a/frontend/src/v2/views/Player/Stream.vue
++++ b/frontend/src/v2/views/Player/Stream.vue
+@@ -42,6 +42,8 @@ import { useI18n } from "vue-i18n";
+ import { onBeforeRouteLeave, useRoute, useRouter } from "vue-router";
+ import type { SaveSchema, UserStateSchema } from "@/__generated__";
+ import { useUserLocalStorage } from "@/composables/useUserLocalStorage";
++import { extensionOwnsStream } from "@/ext/_core";
++import ExtensionSlot from "@/ext/_core/ExtensionSlot.vue";
+ import romApi from "@/services/api/rom";
+ import streamingApi, {
+   type ContainerBusyDetail,
+@@ -1696,8 +1698,14 @@ onBeforeUnmount(() => {
+               v-model="fullscreenOnPlay"
+               :label="t('play.full-screen')"
+             />
++            <!-- An extension that owns this rom's stream sets the mode itself. -->
++            <ExtensionSlot
++              v-if="rom && extensionOwnsStream(rom)"
++              name="stream.setup"
++              :rom="rom"
++            />
+             <!-- Fixed for the session: the backend reads it at claim time. -->
+-            <div class="r-v2-stream__setup-item">
++            <div v-else class="r-v2-stream__setup-item">
+               <RSwitch
+                 v-model="multiplayerOnPlay"
+                 :label="t('play.multiplayer')"

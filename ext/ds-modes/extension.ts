@@ -11,6 +11,7 @@ import { isPoolRom } from "./modes";
 // router, which an eager import would load at app start for every view (and
 // into every upstream test that mounts the game page).
 const DsModes = defineAsyncComponent(() => import("./DsModes.vue"));
+const StreamMode = defineAsyncComponent(() => import("./StreamMode.vue"));
 
 const DsModesSlot = defineComponent({
   props: {
@@ -18,12 +19,16 @@ const DsModesSlot = defineComponent({
     size: { type: String as PropType<"default" | "large">, required: true },
   },
   setup(props) {
-    return () => (isPoolRom(props.rom) ? h(DsModes, { rom: props.rom, size: props.size }) : null);
+    return () =>
+      isPoolRom(props.rom)
+        ? h(DsModes, { rom: props.rom, size: props.size })
+        : null;
   },
 });
 
 export default defineExtension({
   id: "ds-modes",
-  slots: { "game.actions": DsModesSlot },
+  // The launch screen renders "stream.setup" only for a rom this extension owns.
+  slots: { "game.actions": DsModesSlot, "stream.setup": StreamMode },
   ownsStream: isPoolRom,
 });

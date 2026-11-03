@@ -20,7 +20,7 @@ upstream frontend @ ROMM_VERSION
 ```
 
 - **Patches** (`patches/`) are git diffs against upstream. Keep them to hook
-  points: an import and a call. Today there are five:
+  points: an import and a call. Today there are six:
   - `0001-ext-install-hook` runs the extensions from `main.ts`, before the
     router is installed.
   - `0002-ext-nav-destinations` lets extensions add entries to the v2 navbar
@@ -37,6 +37,9 @@ upstream frontend @ ROMM_VERSION
     button of a game page (it passes the rom and the button size), lets an
     extension take over the Stream button for a rom (`ownsStream`), and gives
     the Stream button an optional label and icon.
+  - `0006-ext-stream-setup` lets an extension that owns a rom's stream
+    replace the stream launch screen's multiplayer switch with a
+    `stream.setup` slot (it passes the rom).
 - **Extensions** (`ext/<name>/extension.ts`) are found automatically. One
   extension can contribute:
   - routes (children of the main layout, rendered by the v2 shell);
@@ -72,7 +75,9 @@ upstream frontend @ ROMM_VERSION
     whose consoles link over their local wireless, and, for the DS only,
     Shared screen, four DSes in one stream with RomM's invite link for pads. Each sets RomM's "open this
     session to other players" preference, which the broker reads as the mode,
-    before launching. Play (in the browser) is unchanged.
+    before launching. On the launch screen that preference shows as the mode
+    by name (Multiplayer / Shared screen, with what each means) instead of
+    RomM's "Multiplayer mode" switch. Play (in the browser) is unchanged.
   - `game-clock`: a "Game clock" button in the EmulatorJS menu bar. Day
     (today 12:00), Night (today 23:00), any date, or real time, remembered per
     game. It works by offsetting `Date.now`, which is how the cores read the
