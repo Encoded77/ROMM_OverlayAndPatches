@@ -1,0 +1,135 @@
+diff --git a/backend/config/config_manager.py b/backend/config/config_manager.py
+index d763ad2..ecf5f48 100644
+--- a/backend/config/config_manager.py
++++ b/backend/config/config_manager.py
+@@ -543,6 +543,7 @@ class Config:
+     STREAMING_ENABLED: bool
+     STREAMING_CONTAINERS: list[StreamingContainer]
+     CONVERTO: ConvertoConfig
++    OVERLAY_EXTENSIONS: dict[str, bool]  # overlay extension id -> enabled
+ 
+     def __init__(self, **entries: Any) -> None:
+         self.__dict__.update(entries)
+@@ -590,6 +591,13 @@ class Config:
+         return "/".join(self.default_structure.platform_dir)
+ 
+ 
++def _overlay_extensions(raw: Any) -> dict[str, bool]:
++    """overlay.extensions as id -> enabled, dropping anything that is not a flag."""
++    if not isinstance(raw, dict):
++        return {}
++    return {str(k): v for k, v in raw.items() if isinstance(v, bool)}
++
++
+ class ConfigManager:
+     """
+     Parse and load the user configuration from the config.yml file.
+@@ -928,6 +936,9 @@ class ConfigManager:
+             STRUCTURE_TEMPLATES=get_nested(
+                 self._raw_config, "filesystem.structure", {}
+             ),
++            OVERLAY_EXTENSIONS=_overlay_extensions(
++                get_nested(self._raw_config, "overlay.extensions", {})
++            ),
+         )
+ 
+     def _get_ejs_controls(self) -> dict[str, EjsControls]:
+@@ -1528,6 +1539,12 @@ class ConfigManager:
+                 "containers": self.config.STREAMING_CONTAINERS,
+             }
+ 
++        # The overlay's extension switches, kept through every rewrite too.
++        if self.config.OVERLAY_EXTENSIONS:
++            self._raw_config["overlay"] = {
++                "extensions": self.config.OVERLAY_EXTENSIONS
++            }
++
+         self._write_raw_config()
+ 
+     def _write_raw_config(self) -> None:
+@@ -1659,5 +1676,13 @@ class ConfigManager:
+         self.config.CONVERTO = converto
+         self._update_config_file()
+ 
++    def set_overlay_extension(self, extension_id: str, enabled: bool) -> None:
++        """Switch one overlay extension on or off and persist it to config.yml."""
++        self.config.OVERLAY_EXTENSIONS = {
++            **self.config.OVERLAY_EXTENSIONS,
++            extension_id: enabled,
++        }
++        self._update_config_file()
++
+ 
+ config_manager = ConfigManager()
+diff --git a/backend/endpoints/configs.py b/backend/endpoints/configs.py
+index dacae0c..a14dc28 100644
+--- a/backend/endpoints/configs.py
++++ b/backend/endpoints/configs.py
+@@ -1,4 +1,4 @@
+-from fastapi import HTTPException, Request, status
++from fastapi import HTTPException, Path, Request, status
+ from pydantic import BaseModel, Field, field_validator
+ 
+ from adapters.services.rom_converto import (
+@@ -28,6 +28,7 @@ from handler.database import db_rom_handler
+ from handler.filesystem import fs_platform_handler
+ from logger.logger import log
+ from models.audit_event import AuditAction, AuditTargetType
++from models.user import Role
+ from utils.router import APIRouter
+ 
+ router = APIRouter(
+@@ -193,6 +194,7 @@ def get_config(request: Request) -> ConfigResponse:
+             slug: sorted(targets)
+             for slug, targets in LIBRARY_TARGETS_BY_PLATFORM.items()
+         },
++        OVERLAY_EXTENSIONS=cfg.OVERLAY_EXTENSIONS,
+     )
+ 
+ 
+@@ -385,3 +387,35 @@ async def update_converto_settings(
+             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=exc.message
+         ) from exc
+     _record_config(request, "converto_settings", "update")
++
++
++class OverlayExtensionPayload(BaseModel):
++    enabled: bool
++
++
++@protected_route(
++    router.put, "/overlay/extensions/{extension_id}", [Scope.USERS_WRITE]
++)
++async def update_overlay_extension(
++    request: Request,
++    payload: OverlayExtensionPayload,
++    extension_id: str = Path(pattern=r"^[a-z0-9][a-z0-9-]{0,63}$"),
++) -> None:
++    """Switch one overlay extension on or off (overlay.extensions in config.yml)"""
++    if request.user.role != Role.ADMIN:
++        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
++
++    try:
++        cm.set_overlay_extension(extension_id, payload.enabled)
++    except ConfigNotWritableException as exc:
++        log.critical(exc.message)
++        raise HTTPException(
++            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=exc.message
++        ) from exc
++    _record_config(
++        request,
++        "overlay_extension",
++        "update",
++        id=extension_id,
++        enabled=str(payload.enabled).lower(),
++    )
+diff --git a/backend/endpoints/responses/config.py b/backend/endpoints/responses/config.py
+index ebf6bd5..f23179d 100644
+--- a/backend/endpoints/responses/config.py
++++ b/backend/endpoints/responses/config.py
+@@ -48,3 +48,5 @@ class ConfigResponse(TypedDict):
+     CONVERTO: ConvertoConfig
+     # Platform slug -> the formats its library can be stored in.
+     CONVERTO_LIBRARY_TARGETS: dict[str, list[str]]
++    # Overlay extension id -> enabled, as the admin set it (absent = default).
++    OVERLAY_EXTENSIONS: dict[str, bool]

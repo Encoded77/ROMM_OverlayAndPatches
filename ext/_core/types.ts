@@ -61,6 +61,12 @@ export interface RommExtension {
   /** Stable identifier, also the folder name. */
   id: string;
   /**
+   * Whether it runs before an admin has chosen (Administration > Extensions,
+   * saved as overlay.extensions in config.yml). False for an extension that
+   * needs a service outside RomM. Default true.
+   */
+  defaultEnabled?: boolean;
+  /**
    * Child routes of RomM's main layout. Give each one a `v2` component; the
    * `default` (v1) component falls back to the v2 one when omitted.
    */

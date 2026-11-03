@@ -28,6 +28,8 @@ const DsModesSlot = defineComponent({
 
 export default defineExtension({
   id: "ds-modes",
+  // Needs a stream broker that reads the multiplayer preference as the mode.
+  defaultEnabled: false,
   // The launch screen renders "stream.setup" only for a rom this extension owns.
   slots: { "game.actions": DsModesSlot, "stream.setup": StreamMode },
   ownsStream: isPoolRom,

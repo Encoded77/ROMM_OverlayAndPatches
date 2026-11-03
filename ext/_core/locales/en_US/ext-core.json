@@ -1,0 +1,21 @@
+{
+  "ds-modes": "DS and 3DS stream modes",
+  "ds-modes-desc": "Multiplayer and Shared screen launches for DS and 3DS games. Needs a streaming broker that reads RomM's multiplayer preference as the mode.",
+  "game-clock": "Game clock",
+  "game-clock-desc": "A \"Game clock\" button in the player: day, night, any date, or real time, per game.",
+  "intro": "Overlay extensions running on this server. Ones that need a service outside RomM start off.",
+  "player-autosave": "Autosave",
+  "player-autosave-desc": "One autosave per game and core, written on Quit, Save & Quit and tab close.",
+  "player-controls": "Default controls",
+  "player-controls-desc": "Games saved with EmulatorJS's stock pad map get RomM's default controls.",
+  "player-volume": "Player volume",
+  "player-volume-desc": "Volume slider and Mute that work on every core.",
+  "random-multi": "Random multiplayer",
+  "random-multi-desc": "A navbar entry that opens a random game for two players or more.",
+  "reload": "Reload",
+  "reload-needed": "Reload the page to apply the change. Other users get it on their next page load.",
+  "requests": "Game requests",
+  "requests-desc": "A Requests page to ask for missing games. Needs the romm-requests service under /ext/requests on RomM's origin.",
+  "save-failed": "Could not save the extension setting.",
+  "tab": "Extensions"
+}

@@ -1,5 +1,5 @@
 # Throwaway RomM for the browser checks: the overlay image, an empty library,
-# a fresh database. Started and destroyed by checks/run.sh.
+# a fresh database and a fresh config.yml. Started and destroyed by checks/run.sh.
 name: romm-overlay-check
 
 services:
@@ -13,7 +13,8 @@ services:
       ROMM_AUTH_SECRET_KEY: 0000000000000000000000000000000000000000000000000000000000000000
       DISABLE_SETUP_WIZARD: "true"
     volumes:
-      - ./config.yml:/romm/config/config.yml:ro
+      # A writable copy (checks/run.sh), so the admin switches can be saved.
+      - ${CHECK_CONFIG:-./config.yml}:/romm/config/config.yml
       - library:/romm/library
     ports:
       - "${CHECK_PORT:-8081}:8080"

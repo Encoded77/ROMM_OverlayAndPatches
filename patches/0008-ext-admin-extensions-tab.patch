@@ -1,0 +1,50 @@
+diff --git a/frontend/src/v2/views/Settings/Administration.vue b/frontend/src/v2/views/Settings/Administration.vue
+index 0d234e2..d1b4b8c 100644
+--- a/frontend/src/v2/views/Settings/Administration.vue
++++ b/frontend/src/v2/views/Settings/Administration.vue
+@@ -11,6 +11,7 @@
+ import { RTabNav, type RTabNavItem } from "@v2/lib";
+ import { computed, watch } from "vue";
+ import { useI18n } from "vue-i18n";
++import ExtensionsSection from "@/ext/_core/ExtensionsSection.vue";
+ import storeAuth from "@/stores/auth";
+ import storePermissions from "@/stores/permissions";
+ import CreateUserDialog from "@/v2/components/Settings/CreateUserDialog.vue";
+@@ -29,8 +30,14 @@ const auth = storeAuth();
+ const permissions = storePermissions();
+ const isAdmin = useCan("app.admin");
+ 
+-type Tab = "users" | "groups" | "tasks" | "streaming";
+-const validTabs: readonly Tab[] = ["users", "groups", "tasks", "streaming"];
++type Tab = "users" | "groups" | "tasks" | "streaming" | "extensions";
++const validTabs: readonly Tab[] = [
++  "users",
++  "groups",
++  "tasks",
++  "streaming",
++  "extensions",
++];
+ 
+ const tab = useRouteQueryParam("tab", "users", validTabs);
+ 
+@@ -62,6 +69,12 @@ const tabs = computed<RTabNavItem[]>(() => {
+       label: t("settings.streaming"),
+       icon: "mdi-monitor-dashboard",
+     });
++    // Overlay: switch the overlay's extensions on or off.
++    items.push({
++      id: "extensions",
++      label: t("ext-core.tab"),
++      icon: "mdi-puzzle-outline",
++    });
+   }
+   return items;
+ });
+@@ -95,6 +108,7 @@ const tabModel = computed<string>({
+     <PermissionGroupsSection v-else-if="tab === 'groups'" />
+     <TasksSection v-else-if="tab === 'tasks'" />
+     <StreamingSection v-else-if="tab === 'streaming' && isAdmin" />
++    <ExtensionsSection v-else-if="tab === 'extensions' && isAdmin" />
+ 
+     <CreateUserDialog />
+     <EditUserDialog />

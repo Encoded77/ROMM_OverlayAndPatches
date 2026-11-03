@@ -1,0 +1,21 @@
+{
+  "ds-modes": "Modes de stream DS et 3DS",
+  "ds-modes-desc": "Lancements Multijoueur et Écran partagé pour les jeux DS et 3DS. Nécessite un broker de streaming qui lit la préférence multijoueur de RomM comme mode.",
+  "game-clock": "Horloge du jeu",
+  "game-clock-desc": "Un bouton « Horloge du jeu » dans le lecteur : jour, nuit, n'importe quelle date ou heure réelle, par jeu.",
+  "intro": "Extensions de l'overlay actives sur ce serveur. Celles qui nécessitent un service hors de RomM sont désactivées par défaut.",
+  "player-autosave": "Sauvegarde automatique",
+  "player-autosave-desc": "Une sauvegarde automatique par jeu et par core, écrite à Quitter, Sauvegarder et quitter, et à la fermeture de l'onglet.",
+  "player-controls": "Commandes par défaut",
+  "player-controls-desc": "Les jeux enregistrés avec la configuration de manette d'origine d'EmulatorJS reçoivent les commandes par défaut de RomM.",
+  "player-volume": "Volume du lecteur",
+  "player-volume-desc": "Curseur de volume et Muet qui fonctionnent sur tous les cores.",
+  "random-multi": "Multi au hasard",
+  "random-multi-desc": "Une entrée de navigation qui ouvre un jeu au hasard pour deux joueurs ou plus.",
+  "reload": "Recharger",
+  "reload-needed": "Rechargez la page pour appliquer le changement. Les autres utilisateurs l'auront à leur prochain chargement.",
+  "requests": "Demandes de jeux",
+  "requests-desc": "Une page Demandes pour réclamer les jeux manquants. Nécessite le service romm-requests sous /ext/requests sur l'origine de RomM.",
+  "save-failed": "Impossible d'enregistrer le réglage de l'extension.",
+  "tab": "Extensions"
+}
