@@ -14,7 +14,8 @@ const user = "overlay-check";
 const pass = "overlay-check-password";
 
 // [label shown in the navbar (en_US), path it opens]
-const expected = [["Requests", "/requests"]];
+// The throwaway RomM holds no games, so Random multiplayer stays on its page.
+const expected = [["Requests", "/requests"], ["Random multiplayer", "/random-multi"]];
 
 const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({ viewport: { width: 1400, height: 900 } });

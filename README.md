@@ -82,6 +82,10 @@ upstream frontend @ ROMM_VERSION
     (today 12:00), Night (today 23:00), any date, or real time, remembered per
     game. It works by offsetting `Date.now`, which is how the cores read the
     time.
+  - `random-multi`: a "Random multiplayer" navbar entry. It picks one game
+    whose player count goes above 1, on a platform the user can play (browser
+    core or stream), and opens its page. `/roms/random` takes no metadata
+    filter, so the pick comes from the list endpoint's `rom_id_index`.
 
   `ext/_core/` is the framework itself. Extensions are written with RomM's own
   v2 components (`@v2/lib`, `@/v2/components/shared`), so they look native and

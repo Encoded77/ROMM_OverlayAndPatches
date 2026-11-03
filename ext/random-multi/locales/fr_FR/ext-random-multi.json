@@ -1,0 +1,7 @@
+{
+  "title": "Multi au hasard",
+  "loading": "Tirage d'un jeu multijoueur…",
+  "empty": "Aucun jeu multijoueur jouable dans la bibliothèque",
+  "error": "Le tirage a échoué",
+  "retry": "Relancer"
+}

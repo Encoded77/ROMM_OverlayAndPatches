@@ -1,0 +1,7 @@
+{
+  "title": "Random multiplayer",
+  "loading": "Picking a multiplayer game…",
+  "empty": "No playable multiplayer game in the library",
+  "error": "The pick failed",
+  "retry": "Roll again"
+}
