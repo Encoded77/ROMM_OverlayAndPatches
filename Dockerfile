@@ -17,7 +17,9 @@ COPY ext /overlay/ext
 COPY scripts/prepare.sh /overlay/scripts/prepare.sh
 RUN sh /overlay/scripts/prepare.sh "${ROMM_VERSION}" /src
 # The upstream backend files the patches changed, at their paths under /backend.
-RUN cd /src && git diff --name-only HEAD -- backend | while read -r f; do       mkdir -p "/backend-patched/$(dirname "${f#backend/}")" && cp "$f" "/backend-patched/${f#backend/}";     done && find /backend-patched -type f
+RUN cd /src && git diff --name-only HEAD -- backend | while read -r f; do \
+      mkdir -p "/backend-patched/$(dirname "${f#backend/}")" && cp "$f" "/backend-patched/${f#backend/}"; \
+    done && find /backend-patched -type f
 WORKDIR /src/frontend
 RUN npm ci --ignore-scripts --no-audit --no-fund
 # Gates: the patched tree must still typecheck and pass upstream's own tests.
@@ -42,6 +44,8 @@ COPY --from=frontend /src/frontend/dist /var/www/html
 COPY --from=frontend /src/frontend/assets /var/www/html/assets
 COPY --from=frontend /backend-patched/ /backend/
 # Each patched file must still parse with the image's own Python.
-RUN --mount=type=bind,from=frontend,source=/backend-patched,target=/patched     find /patched -name '*.py' -exec python -c       'import ast, sys; [ast.parse(open(f).read(), f) for f in sys.argv[1:]]' {} +
+RUN --mount=type=bind,from=frontend,source=/backend-patched,target=/patched \
+    find /patched -name '*.py' -exec python -c \
+      'import ast, sys; [ast.parse(open(f).read(), f) for f in sys.argv[1:]]' {} +
 LABEL org.opencontainers.image.title="romm-overlay" \
       org.opencontainers.image.description="RomM with overlay patches and extensions"
