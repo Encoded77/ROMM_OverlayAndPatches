@@ -48,6 +48,8 @@ const items = computed(() => [
     <RSliderBtnGroup
       v-if="canShare"
       v-model="mode"
+      variant="tab"
+      orientation="vertical"
       :items="items"
       :aria-label="t('ext-ds-modes.mode')"
     />
